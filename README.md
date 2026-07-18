@@ -109,6 +109,53 @@ pixels cannot resolve: below roughly 20px the cells read as circles. That is per
 good as texture, but the shape — the whole point of the library — is gone. At 24–40px the
 octagons and their nodes are clearly legible.
 
+## Offline rendering
+
+For video work the animation has to be reproducible and driven on your own clock, not
+the browser's. Two options cover it:
+
+```js
+var og = Octagons.init('.bg', {
+  seed: 42,             // same seed + same dt sequence => identical frames
+  background: null,     // transparent canvas, so the PNGs carry alpha
+  parallax: false,      // no pointer input when nothing is pointing
+  autoplay: false
+});
+
+og.stop();                                  // make sure rAF is not also running
+for (var i = 0; i < 600; i++) {             // 10 s at 60 fps
+  og.step(1 / 60);
+  // screenshot og.canvas here
+}
+```
+
+Drive it from Playwright, screenshot each frame, and assemble:
+
+```sh
+ffmpeg -framerate 60 -i frame_%04d.png -c:v prores_ks -profile:v 4444 -pix_fmt yuva444p10le out.mov
+```
+
+ProRes 4444 keeps the alpha channel, so the clip drops into an editor over anything.
+
+**`step(dt)`, not `render(absoluteTime)`** — deliberately. Field motion is integrated:
+depth decreases each frame and octagons re-scatter when they pass the camera, so there is
+no closed form to seek to. Frames must be produced in order, from the start. That is fine
+for a sequence render; it does mean you cannot jump to second 37 without rendering the
+first 37, and you cannot split one clip across parallel workers.
+
+Verified rather than assumed: two runs with the same seed produce byte-identical canvases
+after 300 frames, well past the first respawns.
+
+### Adobe, honestly
+
+- **Illustrator / Photoshop** — `pattern({ raw: true })` already returns bare `<svg>`.
+  Paste it in. Nothing else needed.
+- **After Effects / Premiere** — use the sequence render above and import the result as
+  footage.
+- **ExtendScript (`.jsx`)** — not a port. The engine is ES3 with no `canvas` and no
+  `requestAnimationFrame`; everything would have to be redrawn as shape layers. The
+  lattice geometry would survive that, the gradients and glow would not.
+
 ## Options
 
 | Option | Default | Applies to | What |
@@ -121,6 +168,7 @@ octagons and their nodes are clearly legible.
 | `halo` | `'#0c1330'` | both | Soft central glow. Pass `null` to disable |
 | `size` | `110` | both | Lattice pitch in px; scale factor for the field |
 | `count` | `90` | field | Number of octagons |
+| `seed` | *none* | field | Integer. Makes the scatter reproducible — see offline rendering |
 | `speed` | `1` | both | Animation rate; `0` freezes it |
 | `weight` | `1` | both | Line thickness multiplier |
 | `glow` | `true` | both | Soft halo around bright edges |
@@ -144,6 +192,7 @@ var og = Octagons.init('.bg');
 og.set({ mode: 'lattice', bond: 0.25 });  // change options live
 og.stop();                                 // pause
 og.start();                                // resume
+og.step(1 / 60);                           // draw one frame, off the rAF clock
 og.resize();                               // force a re-measure
 og.destroy();                              // remove canvas, detach listeners
 og.canvas;                                 // the <canvas> element

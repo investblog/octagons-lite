@@ -51,6 +51,19 @@
 		return n - Math.floor(n);
 	}
 
+	// mulberry32 — small, fast, good enough for scatter. Used only when `seed` is
+	// given; without it the field is deliberately different on every load.
+	function makeRng(seed) {
+		if (seed == null) return Math.random;
+		var a = seed >>> 0;
+		return function () {
+			a = (a + 0x6D2B79F5) >>> 0;
+			var x = Math.imul(a ^ (a >>> 15), 1 | a);
+			x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x;
+			return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+		};
+	}
+
 	function init(el, opts) {
 		opts = opts || {};
 		el = typeof el === 'string' ? document.querySelector(el) : el;
@@ -81,6 +94,10 @@
 		var nesting = opts.nesting !== false;               // field only
 		var parallax = opts.parallax !== false;             // field only
 		var vignette = opts.vignette == null ? 0.45 : opts.vignette;
+		// `seed` makes the field reproducible: same seed + same dt sequence => same
+		// frames. Required for offline rendering, where a re-render must match.
+		var seed = opts.seed == null ? null : opts.seed;
+		var rnd = makeRng(seed);
 
 		// cap DPR: a decorative background at native retina density costs real
 		// framerate on mobile for a difference almost nobody sees
@@ -96,6 +113,7 @@
 
 		function seedField() {
 			field = [];
+			rnd = makeRng(seed);   // restart the stream so re-seeding is reproducible
 			var G = Math.ceil(Math.sqrt(count));
 			for (var i = 0; i < count; i++) {
 				var gx = i % G, gy = (i / G) | 0;
@@ -103,14 +121,14 @@
 				// sequence: deriving both from i lines the tiles up into one
 				// visibly moving sheet instead of a cloud
 				field.push({
-					x: ((gx + Math.random()) / G - 0.5) * 2.9,
-					y: ((gy + Math.random()) / G - 0.5) * 2.9,
-					z: ((i * 0.6180339887498949) % 1) * (Z_FAR - Z_NEAR) + Z_NEAR + Math.random() * 0.25,
-					rot: Math.random() * Math.PI * 2,
-					spin: (Math.random() - 0.5) * 0.13,
-					acc: Math.random() < 0.07,
-					nest: Math.random() < 0.3,
-					par: 0.5 + Math.random() * 0.9
+					x: ((gx + rnd()) / G - 0.5) * 2.9,
+					y: ((gy + rnd()) / G - 0.5) * 2.9,
+					z: ((i * 0.6180339887498949) % 1) * (Z_FAR - Z_NEAR) + Z_NEAR + rnd() * 0.25,
+					rot: rnd() * Math.PI * 2,
+					spin: (rnd() - 0.5) * 0.13,
+					acc: rnd() < 0.07,
+					nest: rnd() < 0.3,
+					par: 0.5 + rnd() * 0.9
 				});
 			}
 		}
@@ -263,8 +281,8 @@
 				o.z -= dt * 0.55 * speed; o.rot += o.spin * dt * speed;
 				if (o.z < Z_NEAR) {
 					o.z += Z_FAR - Z_NEAR;
-					o.x = (Math.random() - 0.5) * 2.9; o.y = (Math.random() - 0.5) * 2.9;
-					o.acc = Math.random() < 0.07; o.nest = Math.random() < 0.3;
+					o.x = (rnd() - 0.5) * 2.9; o.y = (rnd() - 0.5) * 2.9;
+					o.acc = rnd() < 0.07; o.nest = rnd() < 0.3;
 				}
 			}
 			field.sort(function (a, b) { return b.z - a.z; });
@@ -316,10 +334,16 @@
 			if (mode === 'lattice') buildLattice();
 		}
 
-		function tick(now) {
-			var dt = Math.min(0.05, (now - lastT) / 1000);
-			lastT = now; t += dt;
+		// One frame, advanced by exactly dt. Split out of tick() so a renderer can
+		// drive it on its own clock instead of requestAnimationFrame.
+		function frame(dt) {
+			t += dt;
 			if (mode === 'lattice') drawLattice(); else drawField(dt);
+		}
+
+		function tick(now) {
+			frame(Math.min(0.05, (now - lastT) / 1000));
+			lastT = now;
 			raf = requestAnimationFrame(tick);
 		}
 		// `wanted` is the author's intent (start/stop); `onScreen` and page
@@ -373,6 +397,14 @@
 			canvas: canvas,
 			start: start,
 			stop: stop,
+			// Advance by exactly dt and draw one frame, off the rAF clock. With a
+			// `seed` set this is fully reproducible, which is what offline rendering
+			// needs: stop(), then step(1/fps) per output frame.
+			//
+			// Deliberately step(dt), not render(absoluteTime): field motion is
+			// integrated (z decreases per frame and respawns re-randomise x/y), so
+			// there is no closed form to seek to. Frames must be produced in order.
+			step: function (dt) { frame(dt == null ? 1 / 60 : dt); },
 			resize: resize,
 			set: function (o) {
 				for (var key in o) {
