@@ -8,9 +8,9 @@
     "octagons-lite.min.js"
   ],
   "scripts": {
-    "build": "npx terser octagons-lite.js --compress --mangle -o octagons-lite.min.js",
-    "size": "npx terser octagons-lite.js --compress --mangle | gzip -9 | wc -c",
-    "lint": "npx eslint .",
+    "build": "terser octagons-lite.js --compress --mangle -o octagons-lite.min.js",
+    "size": "terser octagons-lite.js --compress --mangle | gzip -9 | wc -c",
+    "lint": "eslint .",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -22,7 +22,7 @@
     "line-art",
     "lightweight"
   ],
-  "author": "301ST (https://301.st)",
+  "author": "301st (https://301.st)",
   "license": "MIT",
   "homepage": "https://github.com/investblog/octagons-lite#readme",
   "repository": {
@@ -31,5 +31,9 @@
   },
   "bugs": {
     "url": "https://github.com/investblog/octagons-lite/issues"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.4",
+    "terser": "^5.37.0"
   }
 }

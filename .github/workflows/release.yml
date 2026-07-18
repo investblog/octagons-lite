@@ -1,0 +1,79 @@
+name: Release
+
+# Publishes octagons-lite to npm with PROVENANCE via OIDC Trusted Publishing —
+# no tokens, no OTP. One-time setup on npmjs.com is required (see RELEASING.md):
+# package octagons-lite → Settings → Trusted Publisher → GitHub Actions →
+# org/repo = investblog/octagons-lite, workflow = release.yml.
+#
+# Release flow: bump package.json → commit → tag vX.Y.Z → push tag.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # required: OIDC token for npm trusted publishing + provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+
+      # Trusted publishing / provenance needs npm >= 11.5.1 — newer than the npm
+      # bundled with the Node runtime, so upgrade it.
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
+      - name: Install
+        run: npm ci
+
+      # Safety: a pushed vX.Y.Z tag must match the version we're about to publish,
+      # so a stale/mismatched tag fails loudly instead of republishing.
+      - name: Verify tag matches package version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$PKG" ]; then
+            echo "::error::Tag v$TAG does not match package version $PKG"
+            exit 1
+          fi
+          echo "Publishing octagons-lite@$PKG"
+
+      # A tag can point at ANY commit, so main's CI passing is not a precondition
+      # for publishing. This job re-runs the gates rather than trusting an upstream
+      # green: it must be independently sufficient to prove the artifact.
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      # The minified file is gitignored (generated artifacts are never committed),
+      # yet package.json `files` ships it. Without this check a broken prepublish
+      # step would publish a package missing its own minified entry — and that only
+      # shows up for whoever installs it.
+      - name: Verify the tarball carries both entry files
+        run: |
+          npm pack --silent > /dev/null
+          TARBALL="$(ls octagons-lite-*.tgz)"
+          echo "Inspecting $TARBALL"
+          tar -tzf "$TARBALL" | sed 's|^package/||' | sort
+          for f in octagons-lite.js octagons-lite.min.js package.json README.md LICENSE; do
+            tar -tzf "$TARBALL" | grep -qx "package/$f" || {
+              echo "::error::$f missing from the published tarball"; exit 1; }
+          done
+          rm -f "$TARBALL"
+
+      # No NODE_AUTH_TOKEN: npm exchanges the GitHub OIDC token for a short-lived
+      # publish token automatically, and attaches a provenance attestation.
+      - name: Publish (provenance via OIDC)
+        run: npm publish --provenance --access public
