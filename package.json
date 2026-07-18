@@ -15,12 +15,21 @@
   },
   "keywords": [
     "octagon",
+    "octagons",
     "background",
     "canvas",
     "animation",
     "generative",
+    "generative-art",
     "line-art",
-    "lightweight"
+    "geometric",
+    "pattern",
+    "tiling",
+    "zero-dependencies",
+    "vanilla-js",
+    "hero-background",
+    "background-animation",
+    "svg-pattern"
   ],
   "author": "301st (https://301.st)",
   "license": "MIT",

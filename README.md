@@ -241,6 +241,14 @@ Any browser with `<canvas>`. `ResizeObserver` and `IntersectionObserver` are use
 available and degrade gracefully without them — the library falls back to `window.resize`
 and simply stays awake.
 
+## Credits
+
+Built by [301ST](https://301.st) for [generator.ink](https://generator.ink).
+
+The geometry owes its shape to two results that say what *cannot* be done: Reinhardt
+(1918) and Niven (1978) on convex polygons that tile the plane. Working around them is
+the whole design.
+
 ## License
 
-MIT.
+MIT © [301ST](https://301.st)
