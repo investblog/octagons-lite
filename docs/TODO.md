@@ -10,29 +10,21 @@ project: octagons
 The single list of open work. Items link to plans in `../.agents/plans/active/` once one
 exists; an item is dropped when its plan moves to `plans/done/`.
 
-## Next release (0.1.1) — carry these
+## Notes
 
-- `seed` + `step(dt)` are in the tree but **not published**: `octagons@0.1.0` on npm
-  predates them. Anyone installing today gets neither, so the offline-rendering section
-  of the README describes an API the registry does not yet have. Ship 0.1.1 soon.
-- The widened npm keywords likewise only take effect on publish — npm reads them from
-  the tarball, not from GitHub.
 - Credits deliberately differ by surface and that is correct: the README credits 301ST
   and generator.ink (generator.ink is a 301 project), the demo panel credits
   "Made in 301 · for oktagon.bet". Not a discrepancy — leave both.
 
-## Before an npm release
+## Open
 
-- **Remove `"private": true` from `package.json`.** It is the deliberate guard against
-  an accidental `npm publish`; nothing else blocks the release.
-- **Check the name is free on npm.** `octagons` has not been verified as available.
-- **Decide the version.** Currently `0.1.0`. Publishing `1.0.0` implies API stability;
-  the option surface is young and `set()` semantics may still move.
-- **Sponsor attribution, if it ships.** One line and one link to a corporate page, kept
-  out of `keywords` and `description` — density is what reads as spam. GitHub applies
-  `rel="nofollow"` to README links, so there is no SEO gain from placing it there.
-- **CDN eligibility.** cdnjs requires roughly 800 npm downloads/month or 200 GitHub
-  stars; jsDelivr and unpkg serve from npm with no threshold.
+- **Trusted Publisher is not configured yet**, so releases still cannot go out over
+  OIDC and carry no provenance. Steps in `../RELEASING.md`. Until it is done, the
+  `NPM_TOKEN` secret has to stay, which is the thing worth closing.
+- **Delete `bootstrap-publish.yml`** once trusted publishing works — it exists only to
+  create the package, and stops working anyway if token publishing is disallowed.
+- **CDN eligibility.** cdnjs wants roughly 800 npm downloads/month or 200 GitHub stars;
+  jsDelivr and unpkg serve from npm with no threshold and already work.
 
 ## Known issues
 

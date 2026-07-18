@@ -1,11 +1,12 @@
 {
   "name": "octagons",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Animated backgrounds built from regular octagons. Line art, zero dependencies.",
   "main": "octagons.js",
   "files": [
     "octagons.js",
-    "octagons.min.js"
+    "octagons.min.js",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "terser octagons.js --compress --mangle -o octagons.min.js",

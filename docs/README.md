@@ -75,8 +75,28 @@ a triangle mesh you cannot jitter positions.
 | Path | Role |
 |---|---|
 | `octagons.js` | The source. The only file you edit. |
-| `octagons.min.js` | **Generated** by `npm run build`. Not yet built. |
+| `octagons.min.js` | **Generated** by `npm run build`, and **gitignored** — it exists only locally and at publish time. |
 | `index.html` | Three sections; live controls drive the hero instance. |
+
+## Determinism and time
+
+Two properties exist for offline rendering, and both are load-bearing enough to state
+here rather than only in the user README:
+
+- **`seed`** routes the field's scatter through mulberry32 instead of `Math.random`.
+  Without it the field is intentionally different on every load. Note the randomness was
+  never only at start-up: octagons re-scatter when they pass the camera, so an unseeded
+  run diverges *mid-animation*, not just at frame 0.
+- **`step(dt)`** advances one frame off the rAF clock. `frame(dt)` is split out of
+  `tick()` for exactly this.
+
+`step(dt)` and not `render(absoluteTime)`: field motion is integrated (`o.z -= dt * …`)
+and respawn re-randomises x/y, so there is no closed form to seek to. Making it seekable
+means deriving respawn position from a hash of the wrap count — do that only if parallel
+or out-of-order rendering is actually needed.
+
+The lattice mode was already deterministic: bonds come from `hash(i, j, d)`, never from
+`Math.random`.
 
 ## Commands
 
