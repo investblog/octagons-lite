@@ -10,6 +10,16 @@ project: octagons
 The single list of open work. Items link to plans in `../.agents/plans/active/` once one
 exists; an item is dropped when its plan moves to `plans/done/`.
 
+## Next release (0.1.1) — carry these
+
+- `seed` + `step(dt)` are in the tree but **not published**: `octagons@0.1.0` on npm
+  predates them. Anyone installing today gets neither, so the offline-rendering section
+  of the README describes an API the registry does not yet have. Ship 0.1.1 soon.
+- The widened npm keywords likewise only take effect on publish — npm reads them from
+  the tarball, not from GitHub.
+- Credits to 301ST / generator.ink are in the README; the demo panel still credits
+  "Made in 301 · for oktagon.bet". Decide whether those should agree.
+
 ## Before an npm release
 
 - **Remove `"private": true` from `package.json`.** It is the deliberate guard against
