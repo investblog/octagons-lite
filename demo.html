@@ -37,6 +37,15 @@
     --btn-text-on-dark:#FFFFFF;
     --shadow-soft:0 1px 3px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.4);
     --shadow-md:0 6px 18px rgba(0,0,0,.45);
+
+    /* Canvas palette lives here too, so the theme has ONE source of truth.
+       The library paints pixels and cannot read CSS itself, so the page reads
+       these back with getComputedStyle and hands them over — adding or retuning
+       a theme stays a CSS-only edit. */
+    --oct-line-1:#1E3050; --oct-line-2:#3475C0; --oct-line-3:#4DA3FF;
+    --oct-accent:#4DA3FF; --oct-hot:#DCEBFF;
+    --oct-canvas:#111111; --oct-halo:#151C28;
+    --oct-vignette:0.45;
   }
   :root[data-theme="light"]{
     color-scheme: light;
@@ -49,6 +58,12 @@
     --nav-bg:rgba(255,255,255,.92);
     --shadow-soft:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.1);
     --shadow-md:0 6px 18px rgba(0,0,0,.12);
+
+    /* same names, different values — the override block is the whole theme */
+    --oct-line-1:#CBDDF5; --oct-line-2:#5C8FD8; --oct-line-3:#0055DC;
+    --oct-accent:#0055DC; --oct-hot:#003682;
+    --oct-canvas:#FFFFFF; --oct-halo:#F4F8FC;
+    --oct-vignette:0.05;
   }
 
   *{box-sizing:border-box}
@@ -317,25 +332,22 @@ function $(id){ return document.getElementById(id); }
 
 // Canvas colours cannot come from CSS variables — the library paints pixels, so the
 // theme switch has to hand it a new palette explicitly.
-// Canvas colours cannot come from CSS variables — the library paints pixels, so the
-// theme switch has to hand it a new palette explicitly. Values track 301-ui's
-// --bg / --primary / --primary-hover per theme.
-var THEMES = {
-  dark: {
-    field:   { colors:['#1E3050','#3475C0','#4DA3FF'], accent:'#4DA3FF',
-               background:'#111111', halo:'#151C28', vignette:0.45 },
-    lattice: { colors:['#24354F','#3475C0','#7FC0FF'], hot:'#DCEBFF',
-               background:'#111111', halo:'#141B26', vignette:0.45 },
-    pattern: '#4DA3FF'
-  },
-  light: {
-    field:   { colors:['#CBDDF5','#5C8FD8','#0055DC'], accent:'#0055DC',
-               background:'#FFFFFF', halo:'#F4F8FC', vignette:0.05 },
-    lattice: { colors:['#D8E5F7','#7FA3DE','#0055DC'], hot:'#003682',
-               background:'#FFFFFF', halo:'#F4F8FC', vignette:0.05 },
-    pattern: '#0055DC'
-  }
-};
+// Colour has ONE source: the CSS custom properties above. The library paints
+// pixels and cannot read them itself, so the page reads them back and passes them
+// on. Nothing here hardcodes a colour — retuning a theme is a CSS-only edit.
+function tok(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function palette(){
+  return {
+    colors:     [tok('--oct-line-1'), tok('--oct-line-2'), tok('--oct-line-3')],
+    accent:     tok('--oct-accent'),
+    hot:        tok('--oct-hot'),
+    background: tok('--oct-canvas'),
+    halo:       tok('--oct-halo'),
+    vignette:   parseFloat(tok('--oct-vignette'))
+  };
+}
 function theme(){
   return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
 }
@@ -346,7 +358,7 @@ var three = OctagonsLite.init('#bg3',  { mode:'field', size:150, count:52, speed
 var heroMode = 'field';
 
 function paintPatterns(){
-  var c = THEMES[theme()].pattern;
+  var c = tok('--oct-line-3');
   $('code-sample').style.backgroundImage =
     OctagonsLite.pattern({ size:22, opacity:0.09, color:c });
   [].forEach.call(document.querySelectorAll('.swatches i'), function(el){
@@ -357,10 +369,8 @@ function paintPatterns(){
   });
 }
 function applyTheme(){
-  var t = THEMES[theme()];
-  hero.set(t[heroMode]);
-  two.set(t.lattice);
-  three.set(t.field);
+  var p = palette();
+  hero.set(p); two.set(p); three.set(p);
   paintPatterns();
 }
 
@@ -414,7 +424,7 @@ bind('bond','bond',function(v){return v.toFixed(2);});
     var el = $('hero');
     el.style.opacity = '0';
     setTimeout(function(){
-      hero.set(THEMES[theme()][heroMode]);
+      hero.set(palette());
       hero.set({ mode:heroMode });
       el.style.opacity = '1';
     }, 200);
