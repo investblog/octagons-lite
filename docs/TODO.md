@@ -17,8 +17,9 @@ exists; an item is dropped when its plan moves to `plans/done/`.
   of the README describes an API the registry does not yet have. Ship 0.1.1 soon.
 - The widened npm keywords likewise only take effect on publish — npm reads them from
   the tarball, not from GitHub.
-- Credits to 301ST / generator.ink are in the README; the demo panel still credits
-  "Made in 301 · for oktagon.bet". Decide whether those should agree.
+- Credits deliberately differ by surface and that is correct: the README credits 301ST
+  and generator.ink (generator.ink is a 301 project), the demo panel credits
+  "Made in 301 · for oktagon.bet". Not a discrepancy — leave both.
 
 ## Before an npm release
 
