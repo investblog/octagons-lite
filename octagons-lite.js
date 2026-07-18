@@ -408,5 +408,67 @@
 		};
 	}
 
-	window.OctagonsLite = { init: init };
+	/**
+	 * Static tiling pattern as a CSS background — no canvas, no animation loop.
+	 * The 4.8.8 lattice is periodic, so exactly one cell is a seamless tile.
+	 * Returns `url("data:image/svg+xml,…")`, ready for `background-image`.
+	 *
+	 * document.querySelector('pre').style.backgroundImage =
+	 *   OctagonsLite.pattern({ size: 22, opacity: 0.09 });
+	 */
+	function pattern(opts) {
+		opts = opts || {};
+		var P = opts.size || 24;
+		var a = A_REG * P;
+		var color = opts.color || '#8fa2ff';
+		var op = opts.opacity == null ? 0.12 : opts.opacity;
+		var w = opts.weight == null ? 1 : opts.weight;
+		var nodes = opts.nodes || 'diamond';
+		var back = opts.background || null;
+
+		var d = [];
+		function n(v) { return Math.round(v * 1000) / 1000; }
+		function seg(x1, y1, x2, y2) {
+			d.push('M' + n(x1) + ' ' + n(y1) + 'L' + n(x2) + ' ' + n(y2));
+		}
+
+		// Flats sit exactly on the tile edge, so a stroke there is half-clipped.
+		// Drawing each on BOTH opposite edges lets the neighbouring tile supply the
+		// missing half — otherwise every seam renders at half thickness.
+		seg(a, 0, P - a, 0); seg(a, P, P - a, P);
+		seg(0, a, 0, P - a); seg(P, a, P, P - a);
+
+		if (nodes !== 'octagon') {           // corner cuts -> the square node
+			seg(P - a, 0, P, a);
+			seg(P, P - a, P - a, P);
+			seg(a, P, 0, P - a);
+			seg(0, a, a, 0);
+		}
+		if (nodes !== 'diamond') {           // small octagon at each lattice node
+			var corners = [[0, 0], [P, 0], [0, P], [P, P]];
+			for (var c = 0; c < 4; c++) {
+				var cx = corners[c][0], cy = corners[c][1];
+				for (var k = 0; k < 8; k++) {
+					var k2 = (k + 1) % 8;
+					seg(cx + OCTA[k][0] * a, cy + OCTA[k][1] * a,
+						cx + OCTA[k2][0] * a, cy + OCTA[k2][1] * a);
+				}
+			}
+		}
+
+		var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + P + '" height="' + P +
+			'" viewBox="0 0 ' + P + ' ' + P + '">' +
+			(back ? '<rect width="' + P + '" height="' + P + '" fill="' + back + '"/>' : '') +
+			'<path d="' + d.join('') + '" fill="none" stroke="' + color +
+			'" stroke-width="' + w + '" stroke-opacity="' + op +
+			// butt caps, NOT round: every edge is its own subpath, so a round cap
+			// lands on all eight vertices and blunts them. At a small pitch that
+			// turns the octagon into a circle outright.
+			'"/></svg>';
+
+		if (opts.raw) return svg;
+		return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+	}
+
+	window.OctagonsLite = { init: init, pattern: pattern };
 })();

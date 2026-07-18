@@ -44,6 +44,11 @@
   .row button{flex:1;min-width:56px;background:#101425;border:1px solid #222840;color:#c9cee0;
               padding:5px 4px;border-radius:6px;cursor:pointer;font:inherit;font-size:11px}
   .row button.on{background:#1c2444;border-color:#8fa2ff;color:#e2e6ff}
+  .swatches{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+            gap:14px;margin-top:26px;text-align:left}
+  .swatches i{display:block;height:110px;border:1px solid #1e2440;border-radius:10px;
+              background-color:#0b0e1a}
+  .swatches span{display:block;margin-top:7px;font-size:12px;color:#6f7796}
   #fps{color:#565c78;font-variant-numeric:tabular-nums;font-size:11px}
   #foot{margin-top:11px;padding-top:9px;border-top:1px solid #1a1f33}
   .brand{display:flex;align-items:center;gap:5px;margin-top:6px;
@@ -125,6 +130,35 @@
   </div>
 </section>
 
+<section id="pattern" style="min-height:auto;padding:96px 0;background:#070910">
+  <div class="inner" style="max-width:820px">
+    <span class="tag">static pattern</span>
+    <h2>No canvas, no animation.</h2>
+    <p>The lattice is periodic, so one cell is a seamless tile. For a quiet texture —
+       under code, cards, panels — skip the canvas entirely and use a repeating SVG
+       as a plain <code>background-image</code>.</p>
+
+<pre id="code-sample"><code>&lt;script src="octagons-lite.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  document.querySelector('pre').style.backgroundImage =
+    OctagonsLite.pattern({
+      size:    22,          // cell pitch, px
+      opacity: 0.09,        // keep it barely there
+      nodes:   'diamond'    // or 'octagon' / 'both'
+    });
+&lt;/script&gt;</code></pre>
+    <p style="font-size:14px;color:#7d84a0;margin-top:14px">
+      That code block is using it. Nothing is running — it is one repeating tile.</p>
+
+    <div class="swatches">
+      <div><i data-p="14" data-o="0.16"></i><span>14px · 0.16</span></div>
+      <div><i data-p="22" data-o="0.12"></i><span>22px · 0.12</span></div>
+      <div><i data-p="34" data-o="0.10" data-n="octagon"></i><span>34px · octagon nodes</span></div>
+      <div><i data-p="52" data-o="0.14" data-n="both"></i><span>52px · both</span></div>
+    </div>
+  </div>
+</section>
+
 <section id="usage">
   <div class="bg" id="bg3"></div>
   <div class="inner">
@@ -202,6 +236,18 @@ $('pal').addEventListener('click', function(){
   var p = PALS[pal];
   document.body.style.background = p.bg;
   all.forEach(function(x){ x.set({ colors:p.colors, accent:p.accent }); });
+});
+
+// static pattern: no canvas, no loop — just a repeating SVG tile
+$('code-sample').style.backgroundImage =
+  OctagonsLite.pattern({ size: 22, opacity: 0.09 });
+
+[].forEach.call(document.querySelectorAll('.swatches i'), function (el) {
+  el.style.backgroundImage = OctagonsLite.pattern({
+    size: +el.dataset.p,
+    opacity: +el.dataset.o,
+    nodes: el.dataset.n || 'diamond'
+  });
 });
 
 // honest fps meter, measured off the page's own rAF

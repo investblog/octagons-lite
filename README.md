@@ -59,6 +59,34 @@ OctagonsLite.init('.bg', {
 outline and breaks up the regularity of the grid. Useful range is **0.15–0.2**; past
 about 0.4 the lattice falls apart. The selection is deterministic, so bonds never flicker.
 
+## Static pattern — no canvas at all
+
+The lattice is periodic, so a single cell is a seamless tile. For a quiet texture under
+code blocks, cards or panels there is no reason to run a canvas: `pattern()` returns a
+repeating SVG as a ready-to-use `background-image`.
+
+```js
+document.querySelector('pre').style.backgroundImage =
+  OctagonsLite.pattern({ size: 22, opacity: 0.09 });
+```
+
+Nothing animates and nothing runs afterwards — it is one tile handed to CSS.
+
+| Option | Default | What |
+|---|---|---|
+| `size` | `24` | Cell pitch in px |
+| `color` | `'#8fa2ff'` | Stroke colour |
+| `opacity` | `0.12` | Stroke opacity — this is the contrast knob |
+| `weight` | `1` | Stroke width |
+| `nodes` | `'diamond'` | `'diamond'`, `'octagon'`, or `'both'` |
+| `background` | `null` | Optional solid fill behind the lines |
+| `raw` | `false` | Return the bare `<svg>` markup instead of a `url(...)` |
+
+**Pick a pitch of 24px or more if the octagon shape matters.** Eight sides across ten
+pixels cannot resolve: below roughly 20px the cells read as circles. That is perfectly
+good as texture, but the shape — the whole point of the library — is gone. At 24–40px the
+octagons and their nodes are clearly legible.
+
 ## Options
 
 | Option | Default | Applies to | What |
