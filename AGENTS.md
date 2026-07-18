@@ -2,7 +2,7 @@
 
 Zero-dependency browser library: animated backgrounds built from **regular** octagons,
 drawn as line art (the colour gradient runs along the edges, nothing is filled).
-No build backend, no framework. `demo.html` is the verification surface.
+No build backend, no framework. `index.html` is the verification surface.
 
 Two modes: `field` (octagons at varying depth, drifting toward the viewer) and
 `lattice` (the 4.8.8 truncated-square tiling, with optional bonding of neighbours).
@@ -38,7 +38,7 @@ Two modes: `field` (octagons at varying depth, drifting toward the viewer) and
 ### Project-specific (append only after a real incident)
 - **Verify visually, in a browser — a passing lint proves nothing here.** This is a
   *visual* library; every defect found so far was invisible to tooling and obvious on
-  screen. Serve `demo.html` and look at it.
+  screen. Serve `index.html` and look at it.
 - **A background library must sleep when it is off screen.** Three full-screen
   instances animating at once starved the main thread to 0 fps. `IntersectionObserver`
   gates the loop; do not remove it. Page-visibility gating too.

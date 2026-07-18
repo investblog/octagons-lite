@@ -5,6 +5,8 @@ gradient runs along the edges, nothing is ever filled. Zero dependencies, ~3.1 K
 
 Two modes: octagons drifting toward the viewer in depth, or a static lattice.
 
+**[Live demo →](https://investblog.github.io/octagons-lite/)**
+
 ```html
 <div class="bg"></div>
 
@@ -22,7 +24,8 @@ The container needs a size of its own — the canvas fills it. A typical hero:
 .hero > .content { position: relative; z-index: 1; }
 ```
 
-Open `demo.html` for a live playground with all options wired to controls.
+The [live demo](https://investblog.github.io/octagons-lite/) is `index.html` in this
+repo — a playground with every option wired to a control, in both themes.
 
 ## Modes
 

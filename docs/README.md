@@ -7,7 +7,7 @@ project: octagons-lite
 
 # octagons-lite — dev source of truth
 
-Docs for developers and agents. `demo.html` is the verification surface.
+Docs for developers and agents. `index.html` is the verification surface.
 Contract-first: change the doc here **before** the code, then code.
 
 ## The load-bearing geometry
@@ -76,7 +76,7 @@ a triangle mesh you cannot jitter positions.
 |---|---|
 | `octagons-lite.js` | The source. The only file you edit. |
 | `octagons-lite.min.js` | **Generated** by `npm run build`. Not yet built. |
-| `demo.html` | Three sections; live controls drive the hero instance. |
+| `index.html` | Three sections; live controls drive the hero instance. |
 
 ## Commands
 
@@ -87,7 +87,7 @@ a triangle mesh you cannot jitter positions.
 | `npm run size` | gzip size of the minified output |
 
 Serve locally and **look at it** — this is a visual library and lint proves nothing:
-`python -m http.server 5173` then open `demo.html`.
+`python -m http.server 5173` then open `index.html`.
 
 ## See also
 - [TODO.md](TODO.md) — backlog

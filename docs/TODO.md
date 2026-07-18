@@ -25,7 +25,7 @@ exists; an item is dropped when its plan moves to `plans/done/`.
 
 ## Known issues
 
-- **No tests.** `demo.html` is manual-only, so the push gate has nothing to run. Open
+- **No tests.** `index.html` is manual-only, so the push gate has nothing to run. Open
   question whether that is acceptable at this size.
 
 ### Resolved
