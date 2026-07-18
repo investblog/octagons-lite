@@ -10,22 +10,18 @@ project: octagons-lite
 The single list of open work. Items link to plans in `../.agents/plans/active/` once one
 exists; an item is dropped when its plan moves to `plans/done/`.
 
-## Blocking publication
+## Before an npm release
 
-- **Confirm the package name.** `octagons-lite` is a working assumption, never approved.
-- **Confirm the license and add a `LICENSE` file.** `package.json` says MIT to match
-  `trigons-lite`, but no license file exists and the licensing discussion was deferred.
-  `"private": true` currently prevents accidental publish.
-- **Decide `author` / `repository`.** Deliberately omitted rather than guessed.
-- **Sponsor attribution.** If the oktagonbet credit ships, keep it to one line + one link
-  to a corporate page, and keep it out of `keywords`/description — density is what reads
-  as spam. Note GitHub applies `rel="nofollow"` to README links, so there is no SEO gain.
-- **Wire the build into publish.** `octagons-lite.min.js` is **gitignored** — the
-  `git-discipline` rule forbids committing generated artifacts, so unlike `trigons-lite`
-  (which commits its minified file and can ship a stale one) it is never in the repo.
-  But `package.json` `files` still lists it, so publishing without building would ship a
-  broken package. Add a `prepublishOnly` build script before the first publish.
-  Current size: 6 950 B minified, **3 180 B gzipped**, from 15 599 B of source.
+- **Remove `"private": true` from `package.json`.** It is the deliberate guard against
+  an accidental `npm publish`; nothing else blocks the release.
+- **Check the name is free on npm.** `octagons-lite` has not been verified as available.
+- **Decide the version.** Currently `0.1.0`. Publishing `1.0.0` implies API stability;
+  the option surface is young and `set()` semantics may still move.
+- **Sponsor attribution, if it ships.** One line and one link to a corporate page, kept
+  out of `keywords` and `description` — density is what reads as spam. GitHub applies
+  `rel="nofollow"` to README links, so there is no SEO gain from placing it there.
+- **CDN eligibility.** cdnjs requires roughly 800 npm downloads/month or 200 GitHub
+  stars; jsDelivr and unpkg serve from npm with no threshold.
 
 ## Known issues
 

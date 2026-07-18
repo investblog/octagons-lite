@@ -45,10 +45,15 @@ package — the library is advertised as zero-dependency.
 `tsc` is absent, so the push gate skips type-check and says so. Correct for a plain-JS
 library; do not add TypeScript merely to satisfy the gate.
 
-### Open decisions — assumed, NOT confirmed by the user
-These were needed to make the repo function; flag before publishing:
-- **Package name** `octagons-lite` — proposed, never explicitly approved.
-- **License MIT** in `package.json` — chosen to match `trigons-lite`. **No `LICENSE`
-  file was created**, and the licensing conversation was explicitly deferred.
-- `"private": true` is set so nothing can be published to npm by accident.
-- `author` and `repository` are **omitted rather than guessed**.
+### Decisions — now confirmed (2026-07-18)
+- **Package name** `octagons-lite` — confirmed.
+- **License MIT, copyright 301ST (https://301.st)** — confirmed; `LICENSE` written.
+- **Repository** `github.com/investblog/octagons-lite`, public. Chosen over the
+  `admin310st` account, which was also authenticated, so that it sits next to the
+  sibling `trigons-lite`.
+- `"private": true` is **still set** in `package.json`. It blocks `npm publish`
+  outright and is deliberately kept as a guard until npm release is actually decided;
+  removing that one line is the whole change.
+- `prepublishOnly` runs the build, because `octagons-lite.min.js` is gitignored (see
+  `git-discipline`) yet listed in `files` — publishing without it would ship a package
+  missing its own minified entry.
