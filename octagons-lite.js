@@ -351,10 +351,14 @@
 		if (window.ResizeObserver) { ro = new ResizeObserver(onResize); ro.observe(el); }
 		else window.addEventListener('resize', onResize);
 		if (window.IntersectionObserver) {
+			// No rootMargin. A pre-warm margin looks harmless but on the common
+			// layout — full-height sections stacked edge to edge — the next section
+			// is always inside it, so two instances animate at once and the saving
+			// is lost. Measured: the off-screen neighbour kept running.
 			io = new IntersectionObserver(function (entries) {
 				onScreen = entries[entries.length - 1].isIntersecting;
 				sync();
-			}, { rootMargin: '80px' });
+			}, { rootMargin: '0px' });
 			io.observe(el);
 		}
 		document.addEventListener('visibilitychange', onVisibility);
@@ -378,6 +382,11 @@
 						case 'mode': mode = v === 'lattice' ? 'lattice' : 'field'; break;
 						case 'colors': colors = v.map(parseColor); break;
 						case 'accent': accent = parseColor(v); break;
+						case 'hot': hot = parseColor(v); break;
+						// background/halo were missing here, so a theme switch never
+						// reached the canvas and it kept painting the old palette
+						case 'background': bg = v === null ? null : parseColor(v); break;
+						case 'halo': halo = v === null ? null : parseColor(v); break;
 						case 'size': size = v; break;
 						case 'count': count = v; seedField(); break;
 						case 'speed': speed = v; break;
